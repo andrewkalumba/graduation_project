@@ -2,21 +2,11 @@ import { Table, Relationship, Column } from "@/store/schemaStore";
 import { supabase } from "./supabase";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-/**
- * Supabase Schema Sync Function
- *
- * This function syncs your visual schema to Supabase database
- */
-
 export interface SchemaData {
   tables: Table[];
   relationships: Relationship[];
 }
 
-/**
- * SQL to create the schemas table
- * Run this in your Supabase SQL editor if the table doesn't exist
- */
 export const SETUP_SQL = `
 -- Create schemas table to store visual schema designs
 CREATE TABLE IF NOT EXISTS public.schemas (
@@ -580,3 +570,4 @@ export async function importTablesFromSupabase() {
     };
   }
 }
+

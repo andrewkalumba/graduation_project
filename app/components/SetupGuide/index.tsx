@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface SetupGuideProps {
   onComplete: (url: string, key: string) => void;
@@ -36,7 +37,7 @@ export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) =
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    alert(`✅ ${label} copied to clipboard!`);
+    toast.success(`${label} copied to clipboard!`);
   };
 
   return (

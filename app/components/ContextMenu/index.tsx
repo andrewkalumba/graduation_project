@@ -1,26 +1,8 @@
 "use client";
 
-interface ContextMenuProps {
-    x: number;
-    y: number;
-    tableId: string;
-    tableName: string;
-    onClose: () => void;
-    onDelete: () => void;
-    onConnect: () => void;
-    onRename: () => void;
-}
+import { ContextMenuProps } from "@/types/contextMenuProps";
 
-export default function ContextMenu({
-    x,
-    y,
-    tableId,
-    tableName,
-    onClose,
-    onDelete,
-    onConnect,
-    onRename,
-}: ContextMenuProps) {
+export default function ContextMenu({ x, y, tableId, tableName, onClose, onDelete, onConnect, onRename }: ContextMenuProps) {
     return (
         <>
             {/* Backdrop to close menu */}

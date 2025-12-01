@@ -10,8 +10,9 @@ import {
   initializeSupabaseStorage,
   SETUP_SQL,
 } from "@/lib/supabaseSync";
-import { DataViewer } from "@/app/components/DataViewer";
 import { SetupGuide } from "@/app/components/SetupGuide";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 /**
  * Calculate geometric position for tables
@@ -73,6 +74,7 @@ const DATA_TYPES = [
 ];
 
 const SchemaEditor = () => {
+  const { user, signOut, getUserDisplayName } = useAuth();
   const tables = useSchema((s) => s.tables);
   const relationships = useSchema((s) => s.relationships);
   const selected = useSchema((s) => s.selected);
@@ -99,7 +101,6 @@ const SchemaEditor = () => {
   const [creatingTables, setCreatingTables] = useState(false);
   const [addingColumn, setAddingColumn] = useState(false);
 
-  const [selectedDataTable, setSelectedDataTable] = useState<string | null>(null);
   const [editingColumn, setEditingColumn] = useState<number | null>(null);
 
   // Supabase connection credentials (with localStorage persistence)
@@ -109,6 +110,8 @@ const SchemaEditor = () => {
   const [showSetupGuide, setShowSetupGuide] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const [savedProjects, setSavedProjects] = useState<Record<string, any>>({});
+  const [supabaseProjects, setSupabaseProjects] = useState<Record<string, any>>({});
+  const [loadingSupabaseProjects, setLoadingSupabaseProjects] = useState(false);
 
   // Load saved credentials on mount and show welcome message
   React.useEffect(() => {
@@ -379,12 +382,23 @@ const SchemaEditor = () => {
   };
 
   const handleDeleteTable = (tableId: string) => {
-    if (confirm("Are you sure you want to delete this table? This will also remove all relationships.")) {
-      deleteTable(tableId);
-      if (activeTable === tableId) {
-        setActiveTable(null);
-      }
-    }
+    toast.warning("Delete table?", {
+      description: "This will also remove all relationships.",
+      action: {
+        label: "Delete",
+        onClick: () => {
+          deleteTable(tableId);
+          if (activeTable === tableId) {
+            setActiveTable(null);
+          }
+          toast.success("Table deleted successfully");
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
   };
 
   const handleCreateRelationshipFromForm = () => {
@@ -435,48 +449,76 @@ const SchemaEditor = () => {
   };
 
   const handleResetAll = () => {
-    if (confirm("⚠️ This will delete ALL tables, columns, and relationships. This cannot be undone. Are you sure?")) {
-      // Clear localStorage
-      localStorage.removeItem("visubase-storage");
-      // Reload page to reset to defaults
-      window.location.reload();
-    }
+    toast.error("Reset all data?", {
+      description: "This will delete ALL tables, columns, and relationships. This cannot be undone.",
+      action: {
+        label: "Reset",
+        onClick: () => {
+          localStorage.removeItem("visubase-storage");
+          window.location.reload();
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
   };
 
   const handleNewProject = () => {
-    if (confirm("🆕 Create a new blank project? This will save your current work and start fresh.")) {
-      // Current schema will already be saved due to Zustand persistence
-      // Just clear the store to start fresh
-      localStorage.removeItem("visubase-storage");
-      window.location.reload();
-    }
+    toast.info("Create new project?", {
+      description: "This will save your current work and start fresh.",
+      action: {
+        label: "Create",
+        onClick: () => {
+          localStorage.removeItem("visubase-storage");
+          window.location.reload();
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
   };
 
   const handleSaveCurrentProject = () => {
     const projectName = prompt("💾 Name this project:", `project_${Date.now()}`);
     if (!projectName) return;
 
+    if (!projectName.trim()) {
+      toast.error("Project name cannot be empty!");
+      return;
+    }
+
     // Get all saved projects
-    const savedProjects = JSON.parse(localStorage.getItem("visubase-projects") || "{}");
+    const allProjects = JSON.parse(localStorage.getItem("visubase-projects") || "{}");
 
     // Save current schema
     const currentSchema = { tables, relationships };
-    savedProjects[projectName] = {
+    allProjects[projectName] = {
       schema: currentSchema,
       savedAt: new Date().toISOString(),
     };
 
-    localStorage.setItem("visubase-projects", JSON.stringify(savedProjects));
-    setSyncMessage(`✅ Project "${projectName}" saved!`);
-    setTimeout(() => setSyncMessage(null), 3000);
+    localStorage.setItem("visubase-projects", JSON.stringify(allProjects));
+    console.log("✅ Project saved:", projectName, allProjects[projectName]);
+
+    setSyncMessage(`✅ Project "${projectName}" saved! Click "📂 Load Project" to see it.`);
+    setTimeout(() => setSyncMessage(null), 5000);
   };
 
   const handleLoadProject = () => {
     const projects = JSON.parse(localStorage.getItem("visubase-projects") || "{}");
     const projectNames = Object.keys(projects).filter(name => !name.startsWith("_")); // Filter out internal projects
 
+    console.log("📂 All projects in localStorage:", projects);
+    console.log("📂 Visible project names:", projectNames);
+
     if (projectNames.length === 0) {
-      alert("📂 No saved projects found. Save your current project first!");
+      toast.info("No saved projects found", {
+        description: "Save your current project first using '💾 Save Project'!",
+      });
       return;
     }
 
@@ -512,14 +554,106 @@ const SchemaEditor = () => {
 
   const handleDeleteProject = (projectName: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the load
-    if (confirm(`Delete project "${projectName}"? This cannot be undone.`)) {
-      const projects = { ...savedProjects };
-      delete projects[projectName];
-      localStorage.setItem("visubase-projects", JSON.stringify(projects));
-      setSavedProjects(projects);
-      setSyncMessage(`🗑️ Project "${projectName}" deleted`);
-      setTimeout(() => setSyncMessage(null), 3000);
+    toast.warning(`Delete project "${projectName}"?`, {
+      description: "This cannot be undone.",
+      action: {
+        label: "Delete",
+        onClick: () => {
+          const projects = { ...savedProjects };
+          delete projects[projectName];
+          localStorage.setItem("visubase-projects", JSON.stringify(projects));
+          setSavedProjects(projects);
+          toast.success(`Project "${projectName}" deleted`);
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
+  };
+
+  const handleFetchSupabaseProjects = async () => {
+    if (!supabaseUrl || !supabaseKey) {
+      toast.error("Please connect to Supabase first!");
+      return;
     }
+
+    setLoadingSupabaseProjects(true);
+    setSyncMessage("🔄 Fetching saved schemas from Supabase...");
+
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const client = createClient(supabaseUrl, supabaseKey);
+
+      // Fetch all schemas from Supabase
+      const { data, error } = await client
+        .from("schemas")
+        .select("*")
+        .order("updated_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        setSyncMessage("📂 No schemas found in Supabase");
+        setTimeout(() => setSyncMessage(null), 3000);
+        setLoadingSupabaseProjects(false);
+        return;
+      }
+
+      // Convert Supabase schemas to project format
+      const supabaseProjectsData: Record<string, any> = {};
+      data.forEach((schema) => {
+        supabaseProjectsData[schema.name] = {
+          schema: schema.data,
+          savedAt: schema.updated_at || schema.created_at,
+          source: "supabase",
+          id: schema.id,
+        };
+      });
+
+      setSupabaseProjects(supabaseProjectsData);
+      setSyncMessage(`✅ Fetched ${data.length} schema(s) from Supabase!`);
+      setTimeout(() => setSyncMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Error fetching Supabase projects:", err);
+      setSyncMessage(`❌ Failed to fetch: ${err.message}`);
+      setTimeout(() => setSyncMessage(null), 5000);
+    } finally {
+      setLoadingSupabaseProjects(false);
+    }
+  };
+
+  const handleImportFromSupabase = (projectName: string) => {
+    const project = supabaseProjects[projectName];
+    if (!project || !project.schema) {
+      toast.error("Invalid project data");
+      return;
+    }
+
+    // Save current work before loading
+    const currentBackup = { tables, relationships };
+    const localProjects = JSON.parse(localStorage.getItem("visubase-projects") || "{}");
+    localProjects["_autosave_backup"] = {
+      schema: currentBackup,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem("visubase-projects", JSON.stringify(localProjects));
+
+    // Load the Supabase schema
+    const loadedSchema = project.schema;
+    localStorage.setItem("visubase-storage", JSON.stringify({
+      state: {
+        tables: loadedSchema.tables || [],
+        relationships: loadedSchema.relationships || [],
+        selected: null,
+        connectMode: null,
+      },
+      version: 0,
+    }));
+
+    // Reload to apply changes
+    window.location.reload();
   };
 
   const selectedTable = tables.find((t) => t.id === activeTable);
@@ -527,22 +661,44 @@ const SchemaEditor = () => {
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Table Editor</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Design your database schema visually
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800">Table Editor</h2>
+            <p className="text-xs md:text-sm text-gray-500 mt-1">
+              {user ? `Logged in as ${getUserDisplayName()}` : "Design your database schema visually"}
             </p>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
+            {/* Logout Button */}
+            {user && (
+              <button
+                onClick={() => {
+                  toast.warning("Logout?", {
+                    description: "You will need to login again.",
+                    action: {
+                      label: "Logout",
+                      onClick: () => signOut(),
+                    },
+                    cancel: {
+                      label: "Cancel",
+                      onClick: () => {},
+                    },
+                  });
+                }}
+                className="text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                title="Logout"
+              >
+                <span>🚪</span> <span className="hidden sm:inline">Logout</span>
+              </button>
+            )}
             {/* Project Management Dropdown */}
             <div className="relative group">
               <button
-                className="text-xs font-medium flex items-center gap-1 px-3 py-2 border border-purple-300 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+                className="text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border border-purple-300 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
                 title="Manage projects"
               >
-                <span>📁</span> Projects
+                <span>📁</span> <span className="hidden sm:inline">Projects</span>
               </button>
 
               {/* Dropdown Menu */}
@@ -578,17 +734,17 @@ const SchemaEditor = () => {
             {!supabaseUrl || !supabaseKey ? (
               <button
                 onClick={() => setShowSetupGuide(true)}
-                className="text-xs font-medium flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 shadow-sm transition-all"
+                className="text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 shadow-sm transition-all"
                 title="Step-by-step setup guide"
               >
-                <span>🚀</span> Easy Setup Guide
+                <span>🚀</span> <span className="hidden sm:inline">Easy Setup</span>
               </button>
             ) : null}
 
             {/* Simple Connection Form Button - For quick manual entry or updates */}
             <button
               onClick={() => setShowConnectionForm(!showConnectionForm)}
-              className={`text-xs font-medium flex items-center gap-1 px-3 py-2 border rounded-lg transition-colors ${
+              className={`text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg transition-colors ${
                 supabaseUrl && supabaseKey
                   ? "text-green-600 hover:text-green-800 border-green-300 hover:bg-green-50"
                   : "text-blue-600 hover:text-blue-800 border-blue-300 hover:bg-blue-50"
@@ -596,43 +752,35 @@ const SchemaEditor = () => {
               title={supabaseUrl && supabaseKey ? "Connected to Supabase - Click to edit" : "Quick manual connect"}
             >
               <span>{supabaseUrl && supabaseKey ? "✅" : "🔗"}</span>
-              {supabaseUrl && supabaseKey ? "Connected" : "Manual Connect"}
+              <span className="hidden sm:inline">{supabaseUrl && supabaseKey ? "Connected" : "Connect"}</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Table Selector */}
-      <div className="border-b border-gray-200 px-6 py-3">
-        <div className="flex gap-2 overflow-x-auto items-center">
+      <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 md:py-3 flex-shrink-0">
+        <div className="flex gap-1 sm:gap-2 overflow-x-auto items-center pb-1">
           {tables.map((table) => {
             const isActive = activeTable === table.id;
             const isSelectedIn3D = selected === table.id;
             return (
-              <div key={table.id} className="flex items-center gap-1">
-                <button
-                  onClick={() => setActiveTable(table.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                    isActive
-                      ? "bg-green-100 text-green-700 border-2 border-green-500"
-                      : isSelectedIn3D
-                      ? "bg-white text-gray-700 border-2 border-gray-400"
-                      : "bg-gray-100 text-gray-600 border-2 border-transparent hover:bg-gray-200"
-                  }`}
-                >
-                  {table.name}
-                  {isSelectedIn3D && activeTable !== table.id && (
-                    <span className="ml-2 text-xs">👁️</span>
-                  )}
-                </button>
-                <button
-                  onClick={() => setSelectedDataTable(table.name)}
-                  className="px-2 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="View data"
-                >
-                  📊
-                </button>
-              </div>
+              <button
+                key={table.id}
+                onClick={() => setActiveTable(table.id)}
+                className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
+                  isActive
+                    ? "bg-green-100 text-green-700 border-2 border-green-500"
+                    : isSelectedIn3D
+                    ? "bg-white text-gray-700 border-2 border-gray-400"
+                    : "bg-gray-100 text-gray-600 border-2 border-transparent hover:bg-gray-200"
+                }`}
+              >
+                {table.name}
+                {isSelectedIn3D && activeTable !== table.id && (
+                  <span className="ml-1 sm:ml-2 text-xs">👁️</span>
+                )}
+              </button>
             );
           })}
 
@@ -640,9 +788,9 @@ const SchemaEditor = () => {
           {!addingTable ? (
             <button
               onClick={() => setAddingTable(true)}
-              className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap border-2 border-dashed border-gray-300 text-gray-500 hover:border-green-500 hover:text-green-600 transition-all"
+              className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap border-2 border-dashed border-gray-300 text-gray-500 hover:border-green-500 hover:text-green-600 transition-all"
             >
-              + Add Table
+              + <span className="hidden sm:inline">Add</span> Table
             </button>
           ) : (
             <div className="flex items-center gap-2">
@@ -682,7 +830,7 @@ const SchemaEditor = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto px-6 py-4">
+      <div className="flex-1 overflow-auto px-3 sm:px-4 md:px-6 py-3 md:py-4">
         {!activeTable ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -736,20 +884,20 @@ const SchemaEditor = () => {
               </div>
 
               {/* Column Table Header */}
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 border-b border-gray-200">
-                  <div className="grid grid-cols-12 gap-2 px-3 py-2 text-xs font-semibold text-gray-600">
+              <div className="border border-gray-200 rounded-lg overflow-hidden overflow-x-auto">
+                <div className="bg-gray-50 border-b border-gray-200 min-w-[600px] sm:min-w-0">
+                  <div className="grid grid-cols-12 gap-2 px-2 sm:px-3 py-2 text-xs font-semibold text-gray-600">
                     <div className="col-span-3">Name</div>
                     <div className="col-span-3">Type</div>
                     <div className="col-span-1 text-center">PK</div>
-                    <div className="col-span-2 text-center">Nullable</div>
-                    <div className="col-span-2 text-center">Unique</div>
+                    <div className="col-span-2 text-center">Null</div>
+                    <div className="col-span-2 text-center">Uniq</div>
                     <div className="col-span-1"></div>
                   </div>
                 </div>
 
                 {/* Existing Columns */}
-                <div className="divide-y divide-gray-200">
+                <div className="divide-y divide-gray-200 min-w-[600px] sm:min-w-0">
                   {selectedTable?.columns && selectedTable.columns.length > 0 ? (
                     selectedTable.columns.map((col, index) => (
                       editingColumn === index ? (
@@ -1275,9 +1423,19 @@ const SchemaEditor = () => {
                                     </button>
                                     <button
                                       onClick={() => {
-                                        if (confirm("Delete this relationship?")) {
-                                          deleteRelationship(globalIndex);
-                                        }
+                                        toast.warning("Delete this relationship?", {
+                                          action: {
+                                            label: "Delete",
+                                            onClick: () => {
+                                              deleteRelationship(globalIndex);
+                                              toast.success("Relationship deleted");
+                                            },
+                                          },
+                                          cancel: {
+                                            label: "Cancel",
+                                            onClick: () => {},
+                                          },
+                                        });
                                       }}
                                       className="text-xs text-red-500 hover:text-red-700"
                                       title="Delete relationship"
@@ -1303,21 +1461,21 @@ const SchemaEditor = () => {
         )}
       </div>
 
-      {/* Footer Actions */}
-      <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
+      {/* Footer Actions - Sticky on mobile for better accessibility */}
+      <div className="border-t border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 bg-gray-50 flex-shrink-0 sticky bottom-0 lg:relative shadow-[0_-2px_10px_rgba(0,0,0,0.1)] lg:shadow-none">
         {/* Sync Status Message */}
         {syncMessage && (
-          <div className="mb-3 p-2 bg-white rounded-lg text-sm text-center border border-gray-200">
+          <div className="mb-2 sm:mb-3 p-2 bg-white rounded-lg text-xs sm:text-sm text-center border border-gray-200">
             {syncMessage}
           </div>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {/* Sync to Supabase Button - Saves design + Creates tables */}
           <button
             onClick={handleSync}
             disabled={syncing}
-            className="w-full py-2.5 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+            className="w-full py-2.5 sm:py-3 px-3 sm:px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
           >
             {syncing ? (
               <>
@@ -1327,49 +1485,53 @@ const SchemaEditor = () => {
             ) : (
               <>
                 <span>☁️</span>
-                <span>Sync & Create Tables</span>
+                <span className="hidden sm:inline">Sync & Create Tables</span>
+                <span className="sm:hidden">Sync</span>
               </>
             )}
           </button>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {/* Create Tables Only Button */}
             <button
               onClick={handleCreateTablesOnly}
               disabled={creatingTables}
-              className="py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+              className="py-2 sm:py-2.5 px-2 sm:px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm disabled:opacity-50"
             >
               {creatingTables ? (
                 <>
                   <span className="animate-spin">⏳</span>
-                  <span>Creating...</span>
+                  <span className="hidden sm:inline">Creating...</span>
                 </>
               ) : (
                 <>
                   <span>🔨</span>
-                  <span>Create Tables</span>
+                  <span className="hidden sm:inline">Create Tables</span>
+                  <span className="sm:hidden">Create</span>
                 </>
               )}
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {/* Export SQL Button */}
             <button
               onClick={handleExportSQL}
-              className="py-2 px-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2 text-sm"
+              className="py-2 sm:py-2.5 px-2 sm:px-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
             >
               <span>📄</span>
-              <span>Export SQL</span>
+              <span className="hidden sm:inline">Export SQL</span>
+              <span className="sm:hidden">SQL</span>
             </button>
 
             {/* Export JSON Button */}
             <button
               onClick={handleExportJSON}
-              className="py-2 px-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2 text-sm"
+              className="py-2 sm:py-2.5 px-2 sm:px-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
             >
               <span>📦</span>
-              <span>Export JSON</span>
+              <span className="hidden sm:inline">Export JSON</span>
+              <span className="sm:hidden">JSON</span>
             </button>
           </div>
         </div>
@@ -1377,12 +1539,12 @@ const SchemaEditor = () => {
 
       {/* Supabase Connection Form */}
       {showConnectionForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
               Connect to Supabase
             </h2>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
               Enter your Supabase project credentials to sync and create tables.
             </p>
 
@@ -1449,36 +1611,129 @@ const SchemaEditor = () => {
 
       {/* Project Selector Modal */}
       {showProjectSelector && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4 border-b pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b pb-4 gap-3">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">📂 Load Project</h2>
-                <p className="text-sm text-gray-500 mt-1">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">📂 Load Project</h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
                   Click on a project to load it
                 </p>
               </div>
-              <button
-                onClick={() => setShowProjectSelector(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
-              >
-                ✕
-              </button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={handleFetchSupabaseProjects}
+                  disabled={loadingSupabaseProjects || !supabaseUrl || !supabaseKey}
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  title="Fetch schemas saved in Supabase"
+                >
+                  {loadingSupabaseProjects ? (
+                    <>
+                      <span className="animate-spin">⏳</span>
+                      <span className="hidden sm:inline">Fetching...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>☁️</span>
+                      <span className="hidden sm:inline">Fetch from Supabase</span>
+                      <span className="sm:hidden">Fetch</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowProjectSelector(false)}
+                  className="text-gray-400 hover:text-gray-600 text-xl sm:text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
-            {/* Projects List */}
-            <div className="space-y-2">
-              {Object.keys(savedProjects)
+            {/* Supabase Projects Section */}
+            {Object.keys(supabaseProjects).length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-blue-700 mb-3 flex items-center gap-2">
+                  <span>☁️</span>
+                  From Supabase ({Object.keys(supabaseProjects).length})
+                </h3>
+                <div className="space-y-2">
+                  {Object.keys(supabaseProjects)
+                    .sort((a, b) => {
+                      const dateA = new Date(supabaseProjects[a]?.savedAt || 0).getTime();
+                      const dateB = new Date(supabaseProjects[b]?.savedAt || 0).getTime();
+                      return dateB - dateA;
+                    })
+                    .map((projectName) => {
+                      const project = supabaseProjects[projectName];
+                      if (!project || !project.schema) return null;
+
+                      const tableCount = project.schema.tables?.length || 0;
+                      const relationshipCount = project.schema.relationships?.length || 0;
+                      const savedDate = new Date(project.savedAt);
+
+                      return (
+                        <div
+                          key={`supabase-${projectName}`}
+                          onClick={() => handleImportFromSupabase(projectName)}
+                          className="group border-2 border-blue-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-700">
+                                  {projectName}
+                                </h3>
+                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                  Supabase
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                <span className="flex items-center gap-1">
+                                  <span>📊</span>
+                                  {tableCount} table{tableCount !== 1 ? 's' : ''}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <span>🔗</span>
+                                  {relationshipCount} relationship{relationshipCount !== 1 ? 's' : ''}
+                                </span>
+                              </div>
+
+                              <p className="text-xs text-gray-500">
+                                Last saved: {savedDate.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean)}
+                </div>
+              </div>
+            )}
+
+            {/* Local Projects Section */}
+            {Object.keys(savedProjects).filter(name => !name.startsWith("_")).length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-purple-700 mb-3 flex items-center gap-2">
+                  <span>💾</span>
+                  Saved Locally ({Object.keys(savedProjects).filter(name => !name.startsWith("_")).length})
+                </h3>
+                <div className="space-y-2">
+                  {Object.keys(savedProjects)
                 .filter(name => !name.startsWith("_")) // Filter out internal projects
+                .filter(name => savedProjects[name] && savedProjects[name].schema) // Ensure valid project
                 .sort((a, b) => {
                   // Sort by most recent first
-                  const dateA = new Date(savedProjects[a].savedAt).getTime();
-                  const dateB = new Date(savedProjects[b].savedAt).getTime();
+                  const dateA = new Date(savedProjects[a]?.savedAt || 0).getTime();
+                  const dateB = new Date(savedProjects[b]?.savedAt || 0).getTime();
                   return dateB - dateA;
                 })
                 .map((projectName) => {
                   const project = savedProjects[projectName];
+                  if (!project || !project.schema) return null;
+
                   const tableCount = project.schema.tables?.length || 0;
                   const relationshipCount = project.schema.relationships?.length || 0;
                   const savedDate = new Date(project.savedAt);
@@ -1529,18 +1784,31 @@ const SchemaEditor = () => {
                       </div>
                     </div>
                   );
-                })}
-
-              {Object.keys(savedProjects).filter(name => !name.startsWith("_")).length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                  <div className="text-4xl mb-4">📂</div>
-                  <p className="text-lg font-medium mb-2">No saved projects</p>
-                  <p className="text-sm">
-                    Save your current project first using the "💾 Save Project" button
-                  </p>
+                })
+                .filter(Boolean)} {/* Remove any null entries */}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {Object.keys(savedProjects).filter(name => !name.startsWith("_")).length === 0 &&
+             Object.keys(supabaseProjects).length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                <div className="text-4xl mb-4">📂</div>
+                <p className="text-lg font-medium mb-2">No projects found</p>
+                <p className="text-sm mb-4">
+                  Save your current project using "💾 Save Project" or fetch schemas from Supabase
+                </p>
+                {supabaseUrl && supabaseKey && (
+                  <button
+                    onClick={handleFetchSupabaseProjects}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    ☁️ Fetch from Supabase
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Footer */}
             <div className="mt-6 pt-4 border-t flex items-center justify-between text-sm text-gray-600">
@@ -1558,15 +1826,6 @@ const SchemaEditor = () => {
         </div>
       )}
 
-      {/* Data Viewer Modal */}
-      {selectedDataTable && (
-        <DataViewer
-          tableName={selectedDataTable}
-          onClose={() => setSelectedDataTable(null)}
-          supabaseUrl={supabaseUrl}
-          supabaseKey={supabaseKey}
-        />
-      )}
     </div>
   );
 };
