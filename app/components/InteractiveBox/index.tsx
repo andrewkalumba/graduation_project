@@ -54,9 +54,7 @@ const InteractiveBox = ({ table }: InteractiveBoxProps) => {
         }}
       >
         <boxGeometry args={[1.2, 1.2, 1.2]} />
-        <meshStandardMaterial
-          color={hovered ? "orange" : table.color}
-        />
+        <meshStandardMaterial color={hovered ? "orange" : table.color} />
         <Label text={table.name} />
       </mesh>
     </Draggable>

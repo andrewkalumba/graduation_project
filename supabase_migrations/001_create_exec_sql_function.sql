@@ -1,8 +1,8 @@
 -- Create a function to execute dynamic SQL
 -- This allows VisuBase to create tables programmatically
 
-CREATE OR REPLACE FUNCTION exec_sql(sql_query TEXT)
-RETURNS TEXT
+CREATE OR REPLACE FUNCTION exec_sql(sql_query TEXT) 
+RETURNS TEXT --exec_sql takes one text input (a SQL command as a string) and returns a text message.
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$

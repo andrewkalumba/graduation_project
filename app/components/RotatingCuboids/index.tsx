@@ -5,18 +5,7 @@ import { Line, OrbitControls, Html } from "@react-three/drei";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { useSchema } from "@/store/schemaStore";
-
-interface RotatingCuboidProps {
-  id: string;
-  position: [number, number, number];
-  dimensions: [number, number, number]; // [width, height, depth]
-  color: string;
-  label?: string;
-  number?: number;
-  onContextMenu?: (x: number, y: number, id: string, name: string) => void;
-  onDragStart?: () => void;
-  onDragEnd?: () => void;
-}
+import { RotatingCuboidProps } from "@/types/rotatingCuboidProps";
 
 const RotatingCuboid = ({
   id,
@@ -194,10 +183,10 @@ const RotatingCuboid = ({
             isConnectMode
               ? "#ff6b00"
               : isSelected
-              ? "#ffffff"
-              : hovered
-              ? "#60a5fa"
-              : color
+                ? "#ffffff"
+                : hovered
+                  ? "#60a5fa"
+                  : color
           }
           metalness={0.3}
           roughness={0.4}
@@ -207,10 +196,9 @@ const RotatingCuboid = ({
       {/* Label */}
       {(label || number) && (
         <Html position={[0, dimensions[1] / 2 + 1, 0]} center>
-          <div className={`px-3 py-1 rounded-lg shadow-lg border-2 transition-all ${
-              isSelected
-                ? "bg-white border-gray-400"
-                : isConnectMode
+          <div className={`px-3 py-1 rounded-lg shadow-lg border-2 transition-all ${isSelected
+              ? "bg-white border-gray-400"
+              : isConnectMode
                 ? "bg-orange-100 border-orange-500"
                 : "bg-white border-gray-300"
             }`}

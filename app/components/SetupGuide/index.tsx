@@ -8,7 +8,7 @@ interface SetupGuideProps {
   onClose: () => void;
 }
 
-export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) => {
+export const SetupGuide = ({ onComplete, onClose }: SetupGuideProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [supabaseUrl, setSupabaseUrl] = useState("");
   const [supabaseKey, setSupabaseKey] = useState("");
@@ -21,13 +21,13 @@ export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) =
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
-  };
+  }
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
-  };
+  }
 
   const handleFinish = () => {
     if (supabaseUrl && supabaseKey && sqlStep1Done && sqlStep2Done) {
@@ -47,10 +47,8 @@ export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) =
         <div className="sticky top-0 bg-gradient-to-r from-green-500 to-blue-500 text-white p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">🚀 Connect to Supabase - Easy Setup</h2>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-200 text-2xl"
-            >
+
+            <button onClick={onClose} className="text-white hover:text-gray-200 text-2xl" >
               ✕
             </button>
           </div>
@@ -59,11 +57,8 @@ export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) =
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4].map((step) => (
               <div key={step} className="flex-1">
-                <div
-                  className={`h-2 rounded-full transition-all ${
-                    step <= currentStep ? "bg-white" : "bg-white bg-opacity-30"
-                  }`}
-                />
+                <div className={`h-2 rounded-full transition-all ${step <= currentStep ? "bg-white" : "bg-white bg-opacity-30"
+                  }`} />
                 <p className="text-xs mt-1 text-center">
                   Step {step}
                 </p>
@@ -97,10 +92,8 @@ export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) =
                   </p>
                   <div className="bg-gray-100 p-3 rounded font-mono text-sm flex items-center justify-between">
                     <span>https://supabase.com</span>
-                    <button
-                      onClick={() => window.open("https://supabase.com", "_blank")}
-                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"
-                    >
+
+                    <button onClick={() => window.open("https://supabase.com", "_blank")} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs" >
                       Open →
                     </button>
                   </div>
@@ -114,7 +107,6 @@ export const SetupGuide: React.FC<SetupGuideProps> = ({ onComplete, onClose }) =
                   <ul className="text-gray-600 space-y-2 ml-8 list-disc">
                     <li>Click <strong>"Sign In"</strong> in the top right corner</li>
                     <li>If you don't have an account, click <strong>"Sign Up"</strong></li>
-                    <li>You can use GitHub, Google, or Email</li>
                   </ul>
                 </div>
 
@@ -472,5 +464,5 @@ FOR ALL USING (true);`}</pre>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
