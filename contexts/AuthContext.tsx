@@ -69,7 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, fullName: string) => {
     if (!supabaseClient) {
-      return { error: { message: "Please configure Supabase credentials first" } };
+      return {
+        data: null,
+        error: { message: "Please configure Supabase credentials first" }
+      };
     }
 
     const { data, error } = await supabaseClient.auth.signUp({
@@ -83,20 +86,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
     });
 
-    // Auto-confirm the user by signing them in immediately
-    if (!error && data.user) {
-      // Sign in immediately after signup (no email verification required)
-      const { error: signInError } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        return { error: signInError };
-      }
+    if (error) {
+      return { data: null, error };
     }
 
-    return { error };
+    return { data, error: null };
   };
 
   const signIn = async (email: string, password: string) => {
@@ -104,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: { message: "Please configure Supabase credentials first" } };
     }
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
+    const { error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     });

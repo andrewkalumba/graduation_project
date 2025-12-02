@@ -806,7 +806,7 @@ const SchemaEditor = () => {
                   }
                 }}
                 placeholder="Table name"
-                className="px-3 py-2 border-2 border-green-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="px-3 py-2 text-gray-900 border-2 border-green-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400"
                 autoFocus
               />
               <button
@@ -862,7 +862,7 @@ const SchemaEditor = () => {
                 type="text"
                 value={selectedTable?.name || ""}
                 onChange={(e) => renameTable(activeTable, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400"
                 placeholder="Enter table name"
               />
             </div>
@@ -913,7 +913,7 @@ const SchemaEditor = () => {
                               onChange={(e) =>
                                 setEditColumnData({ ...editColumnData, name: e.target.value })
                               }
-                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-2 py-1 text-gray-900 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400"
                             />
                           </div>
                           <div className="col-span-3">
@@ -922,7 +922,7 @@ const SchemaEditor = () => {
                               onChange={(e) =>
                                 setEditColumnData({ ...editColumnData, type: e.target.value })
                               }
-                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-2 py-1 text-gray-900 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                               {DATA_TYPES.map((type) => (
                                 <option key={type} value={type}>
@@ -1058,7 +1058,7 @@ const SchemaEditor = () => {
                             setNewColumn({ ...newColumn, name: e.target.value })
                           }
                           placeholder="column_name"
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="w-full px-2 py-1 text-gray-900 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 placeholder:text-gray-400"
                           autoFocus
                         />
                       </div>
@@ -1068,7 +1068,7 @@ const SchemaEditor = () => {
                           onChange={(e) =>
                             setNewColumn({ ...newColumn, type: e.target.value })
                           }
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="w-full px-2 py-1 text-gray-900 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         >
                           {DATA_TYPES.map((type) => (
                             <option key={type} value={type}>
@@ -1189,7 +1189,7 @@ const SchemaEditor = () => {
                       <select
                         value={relationshipFromTable}
                         onChange={(e) => setRelationshipFromTable(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        className="w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
                       >
                         <option value="">-- Select source table --</option>
                         {tables.map((table) => (
@@ -1208,7 +1208,7 @@ const SchemaEditor = () => {
                       <select
                         value={relationshipToTable}
                         onChange={(e) => setRelationshipToTable(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        className="w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
                       >
                         <option value="">-- Select target table --</option>
                         {tables.map((table) => (
@@ -1229,7 +1229,7 @@ const SchemaEditor = () => {
                         value={relationshipFKColumnName}
                         onChange={(e) => setRelationshipFKColumnName(e.target.value)}
                         placeholder="e.g., userId, testId, author_id"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        className="w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         This column will be created in the FROM table
@@ -1244,7 +1244,7 @@ const SchemaEditor = () => {
                       <select
                         value={relationshipFromColumn}
                         onChange={(e) => setRelationshipFromColumn(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        className="w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
                         disabled={!relationshipFromTable}
                       >
                         <option value="">-- Create new FK column (default) --</option>
@@ -1267,7 +1267,7 @@ const SchemaEditor = () => {
                       <select
                         value={relationshipToColumn}
                         onChange={(e) => setRelationshipToColumn(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        className="w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
                         disabled={!relationshipToTable}
                       >
                         <option value="">-- Use id column (default) --</option>
@@ -1366,7 +1366,7 @@ const SchemaEditor = () => {
                                     value={relationshipFKName}
                                     onChange={(e) => setRelationshipFKName(e.target.value)}
                                     placeholder="e.g., user_id, andrew_id"
-                                    className="flex-1 px-2 py-1 text-xs border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="flex-1 px-2 py-1 text-xs text-gray-900 border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-gray-400"
                                     autoFocus
                                   />
                                   <button
@@ -1558,7 +1558,7 @@ const SchemaEditor = () => {
                   value={supabaseUrl}
                   onChange={(e) => setSupabaseUrl(e.target.value)}
                   placeholder="https://yourproject.supabase.co"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400"
                 />
               </div>
 
@@ -1570,7 +1570,7 @@ const SchemaEditor = () => {
                   value={supabaseKey}
                   onChange={(e) => setSupabaseKey(e.target.value)}
                   placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs"
+                  className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs placeholder:text-gray-400"
                   rows={3}
                 />
               </div>

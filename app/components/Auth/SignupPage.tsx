@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, SignupInput } from "@/lib/validations/auth";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface SignupPageProps {
   onSwitchToLogin: () => void;
@@ -32,7 +33,14 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onSwitchToLogin, onSwitc
       return result;
     },
     onSuccess: () => {
-      // User is now logged in, setup page will redirect to app automatically
+      toast.success("Account created successfully! Please log in to continue.");
+      // Switch to login page after successful signup
+      setTimeout(() => {
+        onSwitchToLogin();
+      }, 1500);
+    },
+    onError: (error: Error) => {
+      toast.error(`Signup failed: ${error.message}`);
     },
   });
 
@@ -84,7 +92,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onSwitchToLogin, onSwitc
             <input
               type="text"
               {...register("fullName")}
-              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-colors placeholder:text-gray-400 ${
                 errors.fullName
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-purple-500"
@@ -104,7 +112,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onSwitchToLogin, onSwitc
             <input
               type="email"
               {...register("email")}
-              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-colors placeholder:text-gray-400 ${
                 errors.email
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-purple-500"
@@ -124,7 +132,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onSwitchToLogin, onSwitc
             <input
               type="password"
               {...register("password")}
-              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-colors placeholder:text-gray-400 ${
                 errors.password
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-purple-500"
@@ -147,7 +155,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onSwitchToLogin, onSwitc
             <input
               type="password"
               {...register("confirmPassword")}
-              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-colors placeholder:text-gray-400 ${
                 errors.confirmPassword
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-purple-500"
@@ -163,6 +171,12 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onSwitchToLogin, onSwitc
           {signupMutation.isError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
               {signupMutation.error.message}
+            </div>
+          )}
+
+          {signupMutation.isSuccess && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+              ✅ Account created! Redirecting to login...
             </div>
           )}
 

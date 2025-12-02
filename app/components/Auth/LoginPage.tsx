@@ -79,7 +79,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onSwitch
             <input
               type="email"
               {...register("email")}
-              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-colors placeholder:text-gray-400 ${
                 errors.email
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-blue-500"
@@ -99,7 +99,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onSwitch
             <input
               type="password"
               {...register("password")}
-              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-colors placeholder:text-gray-400 ${
                 errors.password
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-blue-500"
