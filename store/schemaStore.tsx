@@ -1,3 +1,4 @@
+//Zustand is a state management library used to manage your app's data in React and Next. js
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 

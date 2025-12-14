@@ -33,9 +33,7 @@ export async function initializeSupabaseStorage(customUrl?: string, customKey?: 
     console.log("🔧 Initializing Supabase storage...");
 
     // Create custom client if credentials provided
-    const client = customUrl && customKey
-      ? createClient(customUrl, customKey)
-      : supabase;
+    const client = customUrl && customKey ? createClient(customUrl, customKey) : supabase;
 
     // Try to create the schemas table using RPC
     const { error } = await client.rpc('exec_sql', { sql_query: SETUP_SQL });

@@ -1,15 +1,8 @@
 "use client";
 
-import { useSchema, Column  } from "@/store/schemaStore";
+import { useSchema, Column } from "@/store/schemaStore";
 import React, { useState } from "react";
-import {
-  syncSchemaToSupabase,
-  createTablesInSupabase,
-  generateSQL,
-  exportSchemaAsJSON,
-  initializeSupabaseStorage,
-  SETUP_SQL,
-} from "@/lib/supabaseSync";
+import { syncSchemaToSupabase, createTablesInSupabase, generateSQL, exportSchemaAsJSON, initializeSupabaseStorage, SETUP_SQL } from "@/lib/supabaseSync";
 import { SetupGuide } from "@/app/components/SetupGuide";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -396,7 +389,7 @@ const SchemaEditor = () => {
       },
       cancel: {
         label: "Cancel",
-        onClick: () => {},
+        onClick: () => { },
       },
     });
   };
@@ -460,7 +453,7 @@ const SchemaEditor = () => {
       },
       cancel: {
         label: "Cancel",
-        onClick: () => {},
+        onClick: () => { },
       },
     });
   };
@@ -477,7 +470,7 @@ const SchemaEditor = () => {
       },
       cancel: {
         label: "Cancel",
-        onClick: () => {},
+        onClick: () => { },
       },
     });
   };
@@ -568,7 +561,7 @@ const SchemaEditor = () => {
       },
       cancel: {
         label: "Cancel",
-        onClick: () => {},
+        onClick: () => { },
       },
     });
   };
@@ -682,7 +675,7 @@ const SchemaEditor = () => {
                     },
                     cancel: {
                       label: "Cancel",
-                      onClick: () => {},
+                      onClick: () => { },
                     },
                   });
                 }}
@@ -744,11 +737,10 @@ const SchemaEditor = () => {
             {/* Simple Connection Form Button - For quick manual entry or updates */}
             <button
               onClick={() => setShowConnectionForm(!showConnectionForm)}
-              className={`text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg transition-colors ${
-                supabaseUrl && supabaseKey
-                  ? "text-green-600 hover:text-green-800 border-green-300 hover:bg-green-50"
-                  : "text-blue-600 hover:text-blue-800 border-blue-300 hover:bg-blue-50"
-              }`}
+              className={`text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg transition-colors ${supabaseUrl && supabaseKey
+                ? "text-green-600 hover:text-green-800 border-green-300 hover:bg-green-50"
+                : "text-blue-600 hover:text-blue-800 border-blue-300 hover:bg-blue-50"
+                }`}
               title={supabaseUrl && supabaseKey ? "Connected to Supabase - Click to edit" : "Quick manual connect"}
             >
               <span>{supabaseUrl && supabaseKey ? "✅" : "🔗"}</span>
@@ -768,13 +760,12 @@ const SchemaEditor = () => {
               <button
                 key={table.id}
                 onClick={() => setActiveTable(table.id)}
-                className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-                  isActive
-                    ? "bg-green-100 text-green-700 border-2 border-green-500"
-                    : isSelectedIn3D
+                className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${isActive
+                  ? "bg-green-100 text-green-700 border-2 border-green-500"
+                  : isSelectedIn3D
                     ? "bg-white text-gray-700 border-2 border-gray-400"
                     : "bg-gray-100 text-gray-600 border-2 border-transparent hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {table.name}
                 {isSelectedIn3D && activeTable !== table.id && (
@@ -1433,7 +1424,7 @@ const SchemaEditor = () => {
                                           },
                                           cancel: {
                                             label: "Cancel",
-                                            onClick: () => {},
+                                            onClick: () => { },
                                           },
                                         });
                                       }}
@@ -1722,93 +1713,93 @@ const SchemaEditor = () => {
                 </h3>
                 <div className="space-y-2">
                   {Object.keys(savedProjects)
-                .filter(name => !name.startsWith("_")) // Filter out internal projects
-                .filter(name => savedProjects[name] && savedProjects[name].schema) // Ensure valid project
-                .sort((a, b) => {
-                  // Sort by most recent first
-                  const dateA = new Date(savedProjects[a]?.savedAt || 0).getTime();
-                  const dateB = new Date(savedProjects[b]?.savedAt || 0).getTime();
-                  return dateB - dateA;
-                })
-                .map((projectName) => {
-                  const project = savedProjects[projectName];
-                  if (!project || !project.schema) return null;
+                    .filter(name => !name.startsWith("_")) // Filter out internal projects
+                    .filter(name => savedProjects[name] && savedProjects[name].schema) // Ensure valid project
+                    .sort((a, b) => {
+                      // Sort by most recent first
+                      const dateA = new Date(savedProjects[a]?.savedAt || 0).getTime();
+                      const dateB = new Date(savedProjects[b]?.savedAt || 0).getTime();
+                      return dateB - dateA;
+                    })
+                    .map((projectName) => {
+                      const project = savedProjects[projectName];
+                      if (!project || !project.schema) return null;
 
-                  const tableCount = project.schema.tables?.length || 0;
-                  const relationshipCount = project.schema.relationships?.length || 0;
-                  const savedDate = new Date(project.savedAt);
-                  const isRecent = Date.now() - savedDate.getTime() < 24 * 60 * 60 * 1000; // Within 24 hours
+                      const tableCount = project.schema.tables?.length || 0;
+                      const relationshipCount = project.schema.relationships?.length || 0;
+                      const savedDate = new Date(project.savedAt);
+                      const isRecent = Date.now() - savedDate.getTime() < 24 * 60 * 60 * 1000; // Within 24 hours
 
-                  return (
-                    <div
-                      key={projectName}
-                      onClick={() => handleSelectProject(projectName)}
-                      className="group border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-700">
-                              {projectName}
-                            </h3>
-                            {isRecent && (
-                              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                                Recent
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                            <span className="flex items-center gap-1">
-                              <span>📊</span>
-                              {tableCount} table{tableCount !== 1 ? 's' : ''}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <span>🔗</span>
-                              {relationshipCount} relationship{relationshipCount !== 1 ? 's' : ''}
-                            </span>
-                          </div>
-
-                          <p className="text-xs text-gray-500">
-                            Last saved: {savedDate.toLocaleString()}
-                          </p>
-                        </div>
-
-                        <button
-                          onClick={(e) => handleDeleteProject(projectName, e)}
-                          className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 px-3 py-1 text-sm transition-opacity"
-                          title="Delete project"
+                      return (
+                        <div
+                          key={projectName}
+                          onClick={() => handleSelectProject(projectName)}
+                          className="group border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all"
                         >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-                .filter(Boolean)} {/* Remove any null entries */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-700">
+                                  {projectName}
+                                </h3>
+                                {isRecent && (
+                                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                    Recent
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                <span className="flex items-center gap-1">
+                                  <span>📊</span>
+                                  {tableCount} table{tableCount !== 1 ? 's' : ''}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <span>🔗</span>
+                                  {relationshipCount} relationship{relationshipCount !== 1 ? 's' : ''}
+                                </span>
+                              </div>
+
+                              <p className="text-xs text-gray-500">
+                                Last saved: {savedDate.toLocaleString()}
+                              </p>
+                            </div>
+
+                            <button
+                              onClick={(e) => handleDeleteProject(projectName, e)}
+                              className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 px-3 py-1 text-sm transition-opacity"
+                              title="Delete project"
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean)} {/* Remove any null entries */}
                 </div>
               </div>
             )}
 
             {/* Empty State */}
             {Object.keys(savedProjects).filter(name => !name.startsWith("_")).length === 0 &&
-             Object.keys(supabaseProjects).length === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                <div className="text-4xl mb-4">📂</div>
-                <p className="text-lg font-medium mb-2">No projects found</p>
-                <p className="text-sm mb-4">
-                  Save your current project using "💾 Save Project" or fetch schemas from Supabase
-                </p>
-                {supabaseUrl && supabaseKey && (
-                  <button
-                    onClick={handleFetchSupabaseProjects}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                  >
-                    ☁️ Fetch from Supabase
-                  </button>
-                )}
-              </div>
-            )}
+              Object.keys(supabaseProjects).length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  <div className="text-4xl mb-4">📂</div>
+                  <p className="text-lg font-medium mb-2">No projects found</p>
+                  <p className="text-sm mb-4">
+                    Save your current project using "💾 Save Project" or fetch schemas from Supabase
+                  </p>
+                  {supabaseUrl && supabaseKey && (
+                    <button
+                      onClick={handleFetchSupabaseProjects}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      ☁️ Fetch from Supabase
+                    </button>
+                  )}
+                </div>
+              )}
 
             {/* Footer */}
             <div className="mt-6 pt-4 border-t flex items-center justify-between text-sm text-gray-600">
