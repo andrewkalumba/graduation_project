@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-/**
- * Login schema validation
- */
 export const loginSchema = z.object({
   email: z
     .string()
@@ -16,9 +13,6 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
-/**
- * Signup schema validation
- */
 export const signupSchema = z
   .object({
     fullName: z
@@ -49,9 +43,6 @@ export const signupSchema = z
 
 export type SignupInput = z.infer<typeof signupSchema>;
 
-/**
- * Supabase credentials schema
- */
 export const supabaseCredentialsSchema = z.object({
   url: z
     .string()

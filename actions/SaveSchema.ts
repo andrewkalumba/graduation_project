@@ -7,8 +7,5 @@ export async function saveSchema() {
 
   console.log("Saving schema:", { tables, relationships });
 
-  // Later:
-  // await supabase.edgeFunctions.invoke("sync-schema", { ... });
-
   return { success: true };
 }

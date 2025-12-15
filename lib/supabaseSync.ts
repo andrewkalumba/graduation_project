@@ -24,18 +24,13 @@ ALTER TABLE public.schemas ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow all operations" ON public.schemas FOR ALL USING (true);
 `;
 
-/**
- * Initialize Supabase schema storage
- * Creates the necessary tables for storing visual schemas
- */
+
 export async function initializeSupabaseStorage(customUrl?: string, customKey?: string) {
   try {
     console.log("🔧 Initializing Supabase storage...");
 
-    // Create custom client if credentials provided
     const client = customUrl && customKey ? createClient(customUrl, customKey) : supabase;
 
-    // Try to create the schemas table using RPC
     const { error } = await client.rpc('exec_sql', { sql_query: SETUP_SQL });
 
     if (error) {
@@ -75,29 +70,24 @@ export async function syncSchemaToSupabase(
     console.log("Tables:", schema.tables.length);
     console.log("Relationships:", schema.relationships.length);
 
-    // Use custom credentials if provided, otherwise use environment variables
     const supabaseUrl = customUrl || process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = customKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     console.log("Supabase URL exists:", !!supabaseUrl);
     console.log("Supabase Key exists:", !!supabaseKey);
 
-    // Check if Supabase is configured
     if (!supabaseUrl || !supabaseKey) {
       throw new Error("Supabase credentials not configured. Please connect to Supabase or add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local");
     }
 
-    // Log the URL (partially masked for security)
     if (supabaseUrl) {
       console.log("Supabase URL:", supabaseUrl.substring(0, 20) + "...");
     }
 
-    // Create custom client if credentials provided
     const client = customUrl && customKey
       ? createClient(customUrl, customKey)
       : supabase;
 
-    // Upsert schema to Supabase
     console.log("Attempting to upsert to 'schemas' table...");
     const { data, error } = await client
       .from("schemas")
@@ -149,9 +139,6 @@ export async function syncSchemaToSupabase(
   }
 }
 
-/**
- * Load schema from Supabase
- */
 export async function loadSchemaFromSupabase(
   schemaName: string = "default"
 ): Promise<SchemaData | null> {
@@ -181,9 +168,7 @@ export async function loadSchemaFromSupabase(
   }
 }
 
-/**
- * List all schemas from Supabase
- */
+
 export async function listSchemasFromSupabase() {
   try {
     const { data, error } = await supabase
@@ -209,10 +194,6 @@ export async function listSchemasFromSupabase() {
   }
 }
 
-/**
- * Create actual database tables in Supabase
- * Executes SQL to create real tables from your visual schema
- */
 export async function createTablesInSupabase(
   schema: SchemaData,
   customUrl?: string,
@@ -224,12 +205,10 @@ export async function createTablesInSupabase(
     const sql = generateSQL(schema);
     console.log("Generated SQL:", sql);
 
-    // Create custom client if credentials provided
     const client = customUrl && customKey
       ? createClient(customUrl, customKey)
       : supabase;
 
-    // Execute the SQL using Supabase RPC
     const { data, error } = await client.rpc('exec_sql', { sql_query: sql });
 
     if (error) {
@@ -253,18 +232,12 @@ export async function createTablesInSupabase(
   }
 }
 
-/**
- * Generate SQL from your visual schema
- * Creates CREATE TABLE statements from your schema
- */
 export function generateSQL(schema: SchemaData): string {
   let sql = "-- Generated SQL Schema\n\n";
 
-  // Generate CREATE TABLE statements
   schema.tables.forEach((table) => {
     const tableName = table.name.toLowerCase().replace(/\s+/g, "_");
 
-    // Drop table if exists (for clean recreation)
     sql += `DROP TABLE IF EXISTS ${tableName} CASCADE;\n`;
     sql += `CREATE TABLE ${tableName} (\n`;
 
@@ -286,7 +259,6 @@ export function generateSQL(schema: SchemaData): string {
     sql += "\n);\n\n";
   });
 
-  // Generate foreign key relationships
   schema.relationships.forEach((rel, i) => {
     const fromTable = schema.tables.find((t) => t.id === rel.from);
     const toTable = schema.tables.find((t) => t.id === rel.to);
@@ -295,10 +267,8 @@ export function generateSQL(schema: SchemaData): string {
       const fromTableName = fromTable.name.toLowerCase().replace(/\s+/g, "_");
       const toTableName = toTable.name.toLowerCase().replace(/\s+/g, "_");
 
-      // Determine which column to use as FK (from existing column or create new)
       const fromColumnName = rel.fromColumn || rel.foreignKeyColumn || `${toTableName}_id`;
 
-      // Determine which column to reference (default to id)
       const toColumnName = rel.toColumn || "id";
 
       const constraintName = `${fromTableName}_${fromColumnName}_fkey`;
@@ -331,9 +301,6 @@ export function exportSchemaAsJSON(schema: SchemaData): string {
   return JSON.stringify(schema, null, 2);
 }
 
-/**
- * Save schema to localStorage
- */
 export function saveSchemaLocally(schema: SchemaData): void {
   try {
     localStorage.setItem("visubase_schema", JSON.stringify(schema));
@@ -343,9 +310,6 @@ export function saveSchemaLocally(schema: SchemaData): void {
   }
 }
 
-/**
- * Load schema from localStorage
- */
 export function loadSchemaLocally(): SchemaData | null {
   try {
     const saved = localStorage.getItem("visubase_schema");
@@ -360,10 +324,6 @@ export function loadSchemaLocally(): SchemaData | null {
   }
 }
 
-/**
- * Fetch existing tables from Supabase database
- * Uses Supabase REST API to discover available tables
- */
 export async function fetchTablesFromSupabase() {
   try {
     console.log("🔍 Fetching tables from Supabase...");
@@ -375,8 +335,6 @@ export async function fetchTablesFromSupabase() {
       throw new Error("Supabase credentials not configured");
     }
 
-    // Use Supabase REST API to get table information
-    // The root endpoint returns OpenAPI spec with all tables
     const response = await fetch(`${supabaseUrl}/rest/v1/`, {
       headers: {
         'apikey': supabaseKey,
@@ -423,9 +381,6 @@ export async function fetchTablesFromSupabase() {
   }
 }
 
-/**
- * Fetch columns for a specific table
- */
 async function fetchTableColumns(tableName: string): Promise<Column[]> {
   try {
     const sql = `
@@ -468,15 +423,11 @@ async function fetchTableColumns(tableName: string): Promise<Column[]> {
   }
 }
 
-/**
- * Fetch columns for a specific table with custom Supabase client
- */
 async function fetchTableColumnsWithClient(
   client: SupabaseClient,
   tableName: string
 ): Promise<Column[]> {
   try {
-    // Try to fetch a single row to get column info
     const { data, error } = await client
       .from(tableName)
       .select("*")
@@ -487,7 +438,6 @@ async function fetchTableColumnsWithClient(
       return [];
     }
 
-    // If we got data or just an empty result, extract columns
     if (data !== null) {
       if (data.length > 0) {
         const columns: Column[] = Object.keys(data[0]).map((colName) => ({
@@ -508,15 +458,10 @@ async function fetchTableColumnsWithClient(
   }
 }
 
-/**
- * Import tables from Supabase into the app
- * Converts Supabase table structure to app format
- */
 export async function importTablesFromSupabase() {
   try {
     console.log("📥 Importing tables from Supabase...");
 
-    // Get list of tables
     const tablesResult = await fetchTablesFromSupabase();
 
     if (!tablesResult.success || !tablesResult.tables) {

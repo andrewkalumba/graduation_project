@@ -70,10 +70,9 @@ export default function Home() {
     );
   }
 
-  // User is logged in - show main app
   return (
     <main className="flex flex-col lg:flex-row w-screen h-screen bg-gray-100 overflow-hidden relative">
-      {/* Toggle 3D Scene Button - Mobile/Tablet Only */}
+
       <button
         onClick={() => setShow3DScene(!show3DScene)}
         className="lg:hidden fixed top-4 right-4 z-30 bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium hover:bg-gray-800 transition-colors"
@@ -82,9 +81,8 @@ export default function Home() {
         <span>{show3DScene ? "Show Editor" : "Show 3D"}</span>
       </button>
 
-      {/* Left side - 3D Rotating Cuboids Scene (60% on desktop, toggleable on mobile/tablet) */}
       <div
-        className={`w-full lg:w-[60%] bg-gradient-to-br from-gray-900 to-gray-800 border-b lg:border-b-0 lg:border-r border-gray-700 flex-shrink-0 transition-all duration-300 ${
+        className={`w-full lg:w-[60%] bg-linear-to-br from-gray-900 to-gray-800 border-b lg:border-b-0 lg:border-r border-gray-700 shrink-0 transition-all duration-300 ${
           show3DScene
             ? "h-[35vh] md:h-[40vh] lg:h-full"
             : "h-0 lg:h-full overflow-hidden"
@@ -92,13 +90,11 @@ export default function Home() {
       >
         <Scene onContextMenu={handleContextMenu} />
       </div>
-
-      {/* Right side - Schema Editor (40% on desktop, scrollable on mobile/tablet) */}
+      
       <div className="w-full lg:w-[40%] flex-1 lg:h-full bg-white flex flex-col min-h-0">
         <SchemaEditor />
       </div>
 
-      {/* Context Menu */}
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}

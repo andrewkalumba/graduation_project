@@ -7,10 +7,6 @@ import Draggable from "../DraggableTables";
 import Label from "../Label";
 import { useSchema } from "@/store/schemaStore";
 
-//Three.js = 3D engine
-//React = UI framework
-//React Three Fiber = a bridge that allows you to write Three.js scenes using React
-
 interface Table {
   id: string;
   name: string;
@@ -40,10 +36,7 @@ const InteractiveBox = ({ table }: InteractiveBoxProps) => {
   });
 
   return (
-    <Draggable
-      position={table.position}
-      onDrag={(pos) => updateTablePosition(table.id, pos)}
-    >
+    <Draggable position={table.position} onDrag={(pos) => updateTablePosition(table.id, pos)} >
       <mesh
         ref={ref}
         onPointerOver={() => setHovered(true)}
@@ -55,8 +48,8 @@ const InteractiveBox = ({ table }: InteractiveBoxProps) => {
           } else {
             setSelected(table.id);
           }
-        }}
-      >
+        }} >
+          
         <boxGeometry args={[1.2, 1.2, 1.2]} />
         <meshStandardMaterial color={hovered ? "orange" : table.color} />
         <Label text={table.name} />

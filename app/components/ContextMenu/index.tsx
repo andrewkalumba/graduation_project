@@ -5,19 +5,16 @@ import { ContextMenuProps } from "@/types/contextMenuProps";
 export default function ContextMenu({ x, y, tableId, tableName, onClose, onDelete, onConnect, onRename }: ContextMenuProps) {
     return (
         <>
-            {/* Backdrop to close menu */}
             <div className="fixed inset-0 z-40" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
 
-            {/* Context Menu */}
             <div className="fixed bg-gray-800 text-white rounded-lg shadow-2xl z-50 min-w-[200px] border border-gray-700"
                 style={{ left: `${x}px`, top: `${y}px`, }}>
-                {/* Header */}
+            
                 <div className="px-4 py-2 border-b border-gray-700 bg-gray-900">
                     <p className="font-semibold text-sm truncate">{tableName}</p>
                     <p className="text-xs text-gray-400">{tableId}</p>
                 </div>
 
-                {/* Menu Items */}
                 <div className="py-1">
                     <button onClick={() => { onRename(); onClose(); }} className="w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors flex items-center gap-2" >
                         <span>✏️</span>
@@ -31,8 +28,7 @@ export default function ContextMenu({ x, y, tableId, tableName, onClose, onDelet
 
                     <div className="border-t border-gray-700 my-1" />
 
-                    <button
-                        onClick={() => {
+                    <button onClick={() => {
                             onDelete();
                             onClose();
                         }}

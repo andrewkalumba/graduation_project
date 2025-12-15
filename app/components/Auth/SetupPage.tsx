@@ -20,15 +20,10 @@ export const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4">
-      {/* Background Image with Overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/database.jpg)' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-green-900/80 via-teal-900/80 to-blue-900/80"></div>
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/database.jpg)' }} >
+        <div className="absolute inset-0 bg-linear-to-br from-green-900/80 via-teal-900/80 to-blue-900/80"></div>
       </div>
 
-      {/* Content */}
       <div className="relative z-10 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
           <div className="text-6xl mb-4">🚀</div>
@@ -50,20 +45,14 @@ export const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
             </ul>
           </div>
 
-          <button
-            onClick={() => setShowGuide(true)}
-            className="w-full py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 transition-colors font-medium shadow-lg"
-          >
+          <button onClick={() => setShowGuide(true)} className="w-full py-3 bg-linear-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 transition-colors font-medium shadow-lg" >
             🚀 Start Setup Guide
           </button>
 
           {supabaseUrl && supabaseKey && (
             <div className="text-center">
               <p className="text-sm text-green-600 mb-2">✅ Already configured!</p>
-              <button
-                onClick={onComplete}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-              >
+              <button onClick={onComplete} className="text-sm text-blue-600 hover:text-blue-800 font-medium" >
                 Continue to Login
               </button>
             </div>
@@ -72,10 +61,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
       </div>
 
       {showGuide && (
-        <SetupGuide
-          onComplete={handleSetupComplete}
-          onClose={() => setShowGuide(false)}
-        />
+        <SetupGuide onComplete={handleSetupComplete} onClose={() => setShowGuide(false)} />
       )}
     </div>
   );

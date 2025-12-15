@@ -43,8 +43,8 @@ export const SetupGuide = ({ onComplete, onClose }: SetupGuideProps) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-green-500 to-blue-500 text-white p-6">
+
+        <div className="sticky top-0 bg-linear-to-r from-green-500 to-blue-500 text-white p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">🚀 Connect to Supabase - Easy Setup</h2>
 
@@ -53,7 +53,6 @@ export const SetupGuide = ({ onComplete, onClose }: SetupGuideProps) => {
             </button>
           </div>
 
-          {/* Progress Bar */}
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4].map((step) => (
               <div key={step} className="flex-1">
@@ -67,9 +66,7 @@ export const SetupGuide = ({ onComplete, onClose }: SetupGuideProps) => {
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-6">
-          {/* Step 1: Create/Open Supabase Project */}
           {currentStep === 1 && (
             <div className="space-y-4">
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
@@ -131,7 +128,6 @@ export const SetupGuide = ({ onComplete, onClose }: SetupGuideProps) => {
             </div>
           )}
 
-          {/* Step 2: Get URL and API Key */}
           {currentStep === 2 && (
             <div className="space-y-4">
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
@@ -226,7 +222,6 @@ export const SetupGuide = ({ onComplete, onClose }: SetupGuideProps) => {
             </div>
           )}
 
-          {/* Step 3: Run SQL Script 1 */}
           {currentStep === 3 && (
             <div className="space-y-4">
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
@@ -427,7 +422,6 @@ FOR ALL USING (true);`}</pre>
           )}
         </div>
 
-        {/* Footer Navigation */}
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4 flex items-center justify-between">
           <button
             onClick={handleBack}

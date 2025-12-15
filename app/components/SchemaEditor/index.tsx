@@ -7,23 +7,16 @@ import { SetupGuide } from "@/app/components/SetupGuide";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-/**
- * Calculate geometric position for tables
- * - First 3 tables: Triangle (equilateral)
- * - Tables 4-6: Square around the triangle
- * - Tables 7-12: Hexagon around the square
- * - Tables 13+: Expanding circles
- */
 function calculateGeometricPosition(index: number): [number, number, number] {
   // First 3 tables: Triangle
-  if (index === 0) return [-6, 0, 0]; // Left vertex
-  if (index === 1) return [6, 0, 0]; // Right vertex
-  if (index === 2) return [0, 8, 0]; // Top vertex
+  if (index === 0) return [-6, 0, 0];
+  if (index === 1) return [6, 0, 0];
+  if (index === 2) return [0, 8, 0];
 
   // Tables 4-6: Square corners around triangle
-  if (index === 3) return [-10, 8, 0]; // Top-left
-  if (index === 4) return [10, 8, 0]; // Top-right
-  if (index === 5) return [0, -6, 0]; // Bottom
+  if (index === 3) return [-10, 8, 0];
+  if (index === 4) return [10, 8, 0];
+  if (index === 5) return [0, -6, 0];
 
   // Tables 7-12: Hexagon
   if (index === 6) return [-12, -2, 0];
@@ -42,29 +35,8 @@ function calculateGeometricPosition(index: number): [number, number, number] {
   return [x, y, 0];
 }
 
-const DATA_TYPES = [
-  "text",
-  "integer",
-  "bigint",
-  "boolean",
-  "timestamp",
-  "timestamptz",
-  "uuid",
-  "json",
-  "jsonb",
-  "varchar",
-  "decimal",
-  "real",
-  "double precision",
-  "serial",
-  "bigserial",
-  "date",
-  "time",
-  "int2",
-  "int4",
-  "int8",
-  "bytea",
-];
+const DATA_TYPES = ["text", "integer", "bigint", "boolean", "timestamp", "timestamptz", "uuid", "json", "jsonb", "varchar",
+  "decimal", "real", "double precision", "serial", "bigserial", "date", "time", "int2", "int4", "int8", "bytea"];
 
 const SchemaEditor = () => {
   const { user, signOut, getUserDisplayName } = useAuth();
@@ -653,7 +625,6 @@ const SchemaEditor = () => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Header */}
       <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
@@ -663,7 +634,6 @@ const SchemaEditor = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
-            {/* Logout Button */}
             {user && (
               <button
                 onClick={() => {
@@ -685,7 +655,7 @@ const SchemaEditor = () => {
                 <span>🚪</span> <span className="hidden sm:inline">Logout</span>
               </button>
             )}
-            {/* Project Management Dropdown */}
+
             <div className="relative group">
               <button
                 className="text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border border-purple-300 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
@@ -694,7 +664,6 @@ const SchemaEditor = () => {
                 <span>📁</span> <span className="hidden sm:inline">Projects</span>
               </button>
 
-              {/* Dropdown Menu */}
               <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                 <button
                   onClick={handleNewProject}
@@ -723,7 +692,6 @@ const SchemaEditor = () => {
               </div>
             </div>
 
-            {/* Setup Guide Button - For new users */}
             {!supabaseUrl || !supabaseKey ? (
               <button
                 onClick={() => setShowSetupGuide(true)}
@@ -734,7 +702,6 @@ const SchemaEditor = () => {
               </button>
             ) : null}
 
-            {/* Simple Connection Form Button - For quick manual entry or updates */}
             <button
               onClick={() => setShowConnectionForm(!showConnectionForm)}
               className={`text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg transition-colors ${supabaseUrl && supabaseKey
@@ -750,8 +717,7 @@ const SchemaEditor = () => {
         </div>
       </div>
 
-      {/* Table Selector */}
-      <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 md:py-3 flex-shrink-0">
+      <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 md:py-3 shrink-0">
         <div className="flex gap-1 sm:gap-2 overflow-x-auto items-center pb-1">
           {tables.map((table) => {
             const isActive = activeTable === table.id;
@@ -775,7 +741,6 @@ const SchemaEditor = () => {
             );
           })}
 
-          {/* Add Table Button */}
           {!addingTable ? (
             <button
               onClick={() => setAddingTable(true)}
@@ -820,7 +785,6 @@ const SchemaEditor = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-auto px-3 sm:px-4 md:px-6 py-3 md:py-4">
         {!activeTable ? (
           <div className="flex items-center justify-center h-full">
@@ -836,7 +800,6 @@ const SchemaEditor = () => {
           </div>
         ) : (
           <div>
-            {/* Table Name Section */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-semibold text-gray-500 uppercase">
@@ -858,7 +821,6 @@ const SchemaEditor = () => {
               />
             </div>
 
-            {/* Columns Section */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="block text-xs font-semibold text-gray-500 uppercase">
@@ -874,7 +836,6 @@ const SchemaEditor = () => {
                 )}
               </div>
 
-              {/* Column Table Header */}
               <div className="border border-gray-200 rounded-lg overflow-hidden overflow-x-auto">
                 <div className="bg-gray-50 border-b border-gray-200 min-w-[600px] sm:min-w-0">
                   <div className="grid grid-cols-12 gap-2 px-2 sm:px-3 py-2 text-xs font-semibold text-gray-600">
@@ -887,16 +848,11 @@ const SchemaEditor = () => {
                   </div>
                 </div>
 
-                {/* Existing Columns */}
                 <div className="divide-y divide-gray-200 min-w-[600px] sm:min-w-0">
                   {selectedTable?.columns && selectedTable.columns.length > 0 ? (
                     selectedTable.columns.map((col, index) => (
                       editingColumn === index ? (
-                        // Edit Mode
-                        <div
-                          key={index}
-                          className="grid grid-cols-12 gap-2 px-3 py-3 bg-blue-50 border-t-2 border-blue-200"
-                        >
+                        <div key={index} className="grid grid-cols-12 gap-2 px-3 py-3 bg-blue-50 border-t-2 border-blue-200" >
                           <div className="col-span-3">
                             <input
                               type="text"
@@ -979,11 +935,7 @@ const SchemaEditor = () => {
                           </div>
                         </div>
                       ) : (
-                        // View Mode
-                        <div
-                          key={index}
-                          className="grid grid-cols-12 gap-2 px-3 py-3 text-sm hover:bg-gray-50 transition-colors group"
-                        >
+                        <div key={index} className="grid grid-cols-12 gap-2 px-3 py-3 text-sm hover:bg-gray-50 transition-colors group" >
                           <div className="col-span-3 font-medium text-gray-800 flex items-center gap-2">
                             {col.name}
                             <button
@@ -1038,7 +990,6 @@ const SchemaEditor = () => {
                     </div>
                   )}
 
-                  {/* Add Column Row */}
                   {addingColumn && (
                     <div className="grid grid-cols-12 gap-2 px-3 py-3 bg-green-50 border-t-2 border-green-200">
                       <div className="col-span-3">
@@ -1138,7 +1089,6 @@ const SchemaEditor = () => {
               </div>
             </div>
 
-            {/* Relationships Section */}
             <div className="mt-8">
               <div className="flex items-center justify-between mb-3">
                 <label className="block text-xs font-semibold text-gray-500 uppercase">
@@ -1153,7 +1103,6 @@ const SchemaEditor = () => {
                   </button>
                   <button
                     onClick={() => {
-                      // Start connect mode for current table
                       const setConnectMode = useSchema.getState().setConnectMode;
                       setConnectMode(activeTable);
                       setSyncMessage("🔗 Select another table to connect to...");
@@ -1166,13 +1115,11 @@ const SchemaEditor = () => {
                 </div>
               </div>
 
-              {/* Relationship Creation Form */}
               {showRelationshipForm && (
                 <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <h3 className="text-sm font-semibold text-green-800 mb-3">Create Custom Relationship</h3>
 
                   <div className="space-y-3">
-                    {/* FROM Table Dropdown */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         FROM Table (source)
@@ -1191,7 +1138,6 @@ const SchemaEditor = () => {
                       </select>
                     </div>
 
-                    {/* TO Table Dropdown */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         TO Table (target/reference)
@@ -1210,7 +1156,6 @@ const SchemaEditor = () => {
                       </select>
                     </div>
 
-                    {/* FK Column Name Input */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Foreign Key Column Name
@@ -1227,7 +1172,6 @@ const SchemaEditor = () => {
                       </p>
                     </div>
 
-                    {/* FROM Column Selection (Optional) */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         FROM Column (Optional - which column to use as FK)
@@ -1250,7 +1194,6 @@ const SchemaEditor = () => {
                       </p>
                     </div>
 
-                    {/* TO Column Selection (Optional) */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         TO Column (Optional - which column to reference)
@@ -1273,7 +1216,6 @@ const SchemaEditor = () => {
                       </p>
                     </div>
 
-                    {/* Preview */}
                     {relationshipFromTable && relationshipToTable && relationshipFKColumnName && (
                       <div className="p-2 bg-white border border-green-300 rounded text-xs space-y-1">
                         <span className="font-semibold text-green-700">Preview:</span>
@@ -1293,7 +1235,6 @@ const SchemaEditor = () => {
                       </div>
                     )}
 
-                    {/* Action Buttons */}
                     <div className="flex gap-2 pt-2">
                       <button
                         onClick={handleCreateRelationshipFromForm}
@@ -1334,7 +1275,7 @@ const SchemaEditor = () => {
                           <div className="flex items-start gap-3">
                             <span className="text-2xl">🔗</span>
                             <div className="flex-1">
-                              {/* Relationship Details */}
+
                               <div className="mb-2">
                                 <div className="flex items-center gap-2 text-sm mb-1">
                                   <span className="font-semibold text-blue-700">
@@ -1452,9 +1393,7 @@ const SchemaEditor = () => {
         )}
       </div>
 
-      {/* Footer Actions - Sticky on mobile for better accessibility */}
-      <div className="border-t border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 bg-gray-50 flex-shrink-0 sticky bottom-0 lg:relative shadow-[0_-2px_10px_rgba(0,0,0,0.1)] lg:shadow-none">
-        {/* Sync Status Message */}
+      <div className="border-t border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 bg-gray-50 shrink-0 sticky bottom-0 lg:relative shadow-[0_-2px_10px_rgba(0,0,0,0.1)] lg:shadow-none">
         {syncMessage && (
           <div className="mb-2 sm:mb-3 p-2 bg-white rounded-lg text-xs sm:text-sm text-center border border-gray-200">
             {syncMessage}
@@ -1462,12 +1401,9 @@ const SchemaEditor = () => {
         )}
 
         <div className="space-y-2 sm:space-y-3">
-          {/* Sync to Supabase Button - Saves design + Creates tables */}
-          <button
-            onClick={handleSync}
-            disabled={syncing}
-            className="w-full py-2.5 sm:py-3 px-3 sm:px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
-          >
+          <button onClick={handleSync} disabled={syncing}
+            className="w-full py-2.5 sm:py-3 px-3 sm:px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base" >
+
             {syncing ? (
               <>
                 <span className="animate-spin">⏳</span>
@@ -1483,7 +1419,7 @@ const SchemaEditor = () => {
           </button>
 
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {/* Create Tables Only Button */}
+
             <button
               onClick={handleCreateTablesOnly}
               disabled={creatingTables}
@@ -1505,7 +1441,7 @@ const SchemaEditor = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {/* Export SQL Button */}
+
             <button
               onClick={handleExportSQL}
               className="py-2 sm:py-2.5 px-2 sm:px-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
@@ -1515,7 +1451,6 @@ const SchemaEditor = () => {
               <span className="sm:hidden">SQL</span>
             </button>
 
-            {/* Export JSON Button */}
             <button
               onClick={handleExportJSON}
               className="py-2 sm:py-2.5 px-2 sm:px-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
@@ -1528,7 +1463,6 @@ const SchemaEditor = () => {
         </div>
       </div>
 
-      {/* Supabase Connection Form */}
       {showConnectionForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -1592,7 +1526,6 @@ const SchemaEditor = () => {
         </div>
       )}
 
-      {/* Setup Guide Modal */}
       {showSetupGuide && (
         <SetupGuide
           onComplete={handleSetupComplete}
@@ -1600,11 +1533,10 @@ const SchemaEditor = () => {
         />
       )}
 
-      {/* Project Selector Modal */}
       {showProjectSelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
-            {/* Header */}
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b pb-4 gap-3">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800">📂 Load Project</h2>
@@ -1641,7 +1573,6 @@ const SchemaEditor = () => {
               </div>
             </div>
 
-            {/* Supabase Projects Section */}
             {Object.keys(supabaseProjects).length > 0 && (
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-blue-700 mb-3 flex items-center gap-2">
@@ -1704,7 +1635,6 @@ const SchemaEditor = () => {
               </div>
             )}
 
-            {/* Local Projects Section */}
             {Object.keys(savedProjects).filter(name => !name.startsWith("_")).length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold text-purple-700 mb-3 flex items-center gap-2">
@@ -1776,12 +1706,11 @@ const SchemaEditor = () => {
                         </div>
                       );
                     })
-                    .filter(Boolean)} {/* Remove any null entries */}
+                    .filter(Boolean)} {/* Removes any null entries */}
                 </div>
               </div>
             )}
 
-            {/* Empty State */}
             {Object.keys(savedProjects).filter(name => !name.startsWith("_")).length === 0 &&
               Object.keys(supabaseProjects).length === 0 && (
                 <div className="text-center py-12 text-gray-500">
@@ -1801,15 +1730,11 @@ const SchemaEditor = () => {
                 </div>
               )}
 
-            {/* Footer */}
             <div className="mt-6 pt-4 border-t flex items-center justify-between text-sm text-gray-600">
               <div>
                 💡 Tip: Your current work will be auto-saved before loading
               </div>
-              <button
-                onClick={() => setShowProjectSelector(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-              >
+              <button onClick={() => setShowProjectSelector(false)} className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600" >
                 Cancel
               </button>
             </div>

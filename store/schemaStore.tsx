@@ -54,19 +54,19 @@ export const useSchema = create<Schema>()(
       id: "cuboid1",
       name: "Box 1",
       color: "#7D70BA",
-      position: [-6, 0, 0], // Left vertex of triangle
+      position: [-6, 0, 0]
     },
     {
       id: "cuboid2",
       name: "Box 2",
       color: "#10b981",
-      position: [6, 0, 0], // Right vertex of triangle
+      position: [6, 0, 0]
     },
     {
       id: "cuboid3",
       name: "Box 3",
       color: "#ef4444",
-      position: [0, 8, 0], // Top vertex of triangle
+      position: [0, 8, 0]
     },
   ],
 

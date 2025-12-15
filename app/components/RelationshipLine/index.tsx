@@ -16,7 +16,6 @@ const RelationshipLine = ({ from, to }: RelationshipLineProps) => {
 
   if (!A || !B) return null;
 
-  // Use the Line component from drei which handles dynamic updates
   return (
     <Line
       points={[A.position, B.position]}
