@@ -40,7 +40,7 @@ export default function Home() {
   // Show loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-500 to-purple-500">
+      <div className="flex items-center justify-center h-screen bg-linear-to-br from-blue-500 to-purple-500">
         <div className="text-center">
           <div className="text-6xl mb-4 animate-spin">⏳</div>
           <p className="text-white text-xl font-medium">Loading Visubase...</p>

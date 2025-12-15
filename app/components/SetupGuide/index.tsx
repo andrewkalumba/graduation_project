@@ -398,7 +398,7 @@ FOR ALL USING (true);`}</pre>
                   </label>
                 </div>
 
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-6">
+                <div className="bg-linear-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-6">
                   <h4 className="text-lg font-bold text-green-800 mb-2">
                     🎉 You're All Set!
                   </h4>

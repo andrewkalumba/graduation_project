@@ -625,7 +625,7 @@ const SchemaEditor = () => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 flex-shrink-0">
+      <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 shrink-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
             <h2 className="text-lg md:text-xl font-semibold text-gray-800">Table Editor</h2>
@@ -695,7 +695,7 @@ const SchemaEditor = () => {
             {!supabaseUrl || !supabaseKey ? (
               <button
                 onClick={() => setShowSetupGuide(true)}
-                className="text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 shadow-sm transition-all"
+                className="text-xs font-medium flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-linear-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 shadow-sm transition-all"
                 title="Step-by-step setup guide"
               >
                 <span>🚀</span> <span className="hidden sm:inline">Easy Setup</span>
