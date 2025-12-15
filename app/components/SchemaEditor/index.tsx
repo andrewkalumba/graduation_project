@@ -580,14 +580,19 @@ const SchemaEditor = () => {
       setSupabaseProjects(supabaseProjectsData);
       setSyncMessage(`✅ Fetched ${data.length} schema(s) from Supabase!`);
       setTimeout(() => setSyncMessage(null), 3000);
-    } catch (err: any) {
-      console.error("Error fetching Supabase projects:", err);
-      setSyncMessage(`❌ Failed to fetch: ${err.message}`);
+  } catch (err) {
+  console.error("Error fetching Supabase projects:", err);
+  const message = err instanceof Error ? err.message : "Unknown error";
+      setSyncMessage(`❌ Failed to fetch: ${message}`);
       setTimeout(() => setSyncMessage(null), 5000);
     } finally {
       setLoadingSupabaseProjects(false);
     }
   };
+
+
+
+
 
   const handleImportFromSupabase = (projectName: string) => {
     const project = supabaseProjects[projectName];
